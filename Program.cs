@@ -7,11 +7,14 @@ using System.Text;
 using ToTraveler;
 using ToTraveler.Auth;
 using ToTraveler.Auth.Model;
+using DotNetEnv;
+
+Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-var connectionString = builder.Configuration.GetConnectionString("ToTravelerDB");
+var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
 builder.Services.AddDbContext<AppDbContext>(options => 
     options.UseSqlServer(connectionString));
 
