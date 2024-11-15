@@ -25,10 +25,11 @@ builder.Services.AddTransient<JwtTokenService>();
 builder.Services.AddTransient<SessionService>();
 builder.Services.AddScoped<AuthSeeder>();
 
-
 builder.Services.AddIdentity<User, IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
+
+var JWT_Secret = Environment.GetEnvironmentVariable("JWT_SECRET");
 
 builder.Services.AddAuthentication(options =>
 {
@@ -40,7 +41,7 @@ builder.Services.AddAuthentication(options =>
     options.MapInboundClaims = false;
     options.TokenValidationParameters.ValidAudience = builder.Configuration["Jwt:ValidAudience"];
     options.TokenValidationParameters.ValidIssuer = builder.Configuration["Jwt:ValidIssuer"];
-    options.TokenValidationParameters.IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"]));
+    options.TokenValidationParameters.IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JWT_Secret));
 });
 
 builder.Services.AddAuthorization();
@@ -59,7 +60,6 @@ var dbContext = scope.ServiceProvider.GetService<AppDbContext>();
 var dbSeeder = scope.ServiceProvider.GetRequiredService<AuthSeeder>();
 
 await dbSeeder.SeedAsync();
-
 
 // Configure the HTTP request pipeline.
 //if (app.Environment.IsDevelopment())
