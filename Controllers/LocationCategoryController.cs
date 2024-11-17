@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.JSInterop.Infrastructure;
+using ToTraveler.Auth.Model;
 using ToTraveler.DTOs;
 using ToTraveler.Models;
 
@@ -49,23 +52,16 @@ namespace ToTraveler.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = UserRoles.Admin)]
         public async Task<IActionResult> Post([FromBody] string name)
         {
             //Validation
-            if (name == null)
-            {
+            if (name.IsNullOrEmpty())
                 return BadRequest();
-            }
-            if (name.Length <= 0)
-            {
-                return BadRequest();
-            }
 
             var location_category = new LocationCategory(name);
-            if (await _context.LocationCategories.AnyAsync(lc => lc.Name == name))
-            {
-                return Conflict("Location Category with such Name already exists");
-            }
+            if (await _context.LocationCategories.FirstOrDefaultAsync(lc => lc.Name == name) is not null)
+                return Conflict("Location Category with such name already exists");
 
             await _context.LocationCategories.AddAsync(location_category);
             await _context.SaveChangesAsync();
@@ -74,50 +70,41 @@ namespace ToTraveler.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = UserRoles.Admin)]
         public async Task<IActionResult> Put(int id, [FromBody] string name)
         {
-            if (name == null)
-            {
+            //Validation
+            if (name.IsNullOrEmpty())
                 return BadRequest();
-            }
-            if (name.Length <= 0)
-            {
-                return BadRequest();
-            }
 
             //Checking if request Location_List exists
             var location_category = await _context.LocationCategories.FirstOrDefaultAsync(u => u.ID == id);
             if (location_category == null)
-            {
                 return NotFound("Location_List does not exist");
-            }
 
-            if (await _context.LocationCategories.AnyAsync(lc => lc.Name == name))
-            {
-                return Conflict("Location Category with such Name already exists");
-            }
+            if (await _context.LocationCategories.FirstOrDefaultAsync(lc => lc.Name == name) is not null)
+                return Conflict("Location Category with such name already exists");
 
             //Updating attributes
             location_category.Name = name;
-
             await _context.SaveChangesAsync();
 
             return Ok(location_category);
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = UserRoles.Admin)]
         public async Task<IActionResult> Delete(int id)
         {
             var LocationCategories = await _context.LocationCategories.FirstOrDefaultAsync(u => u.ID == id);
 
             if (LocationCategories == null)
-            {
                 return NotFound();
-            }
 
             //Removing the Location_List
             _context.LocationCategories.Remove(LocationCategories);
             await _context.SaveChangesAsync();
+
             return Ok(LocationCategories);
         }
     }

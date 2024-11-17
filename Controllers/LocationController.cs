@@ -26,12 +26,14 @@ namespace ToTraveler.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = UserRoles.User)]
         public async Task<IActionResult> Get()
         {
+            var userId = _httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+
             var locations = await _context.Locations
-                .Include(loc => loc.Category)
-                .Include(loc => loc.Reviews!)
+                .Include(l => l.Category)
+                .Include(l => l.Reviews!
+                    .Where(r => r.IsPrivate == false || r.UserId == userId))
                 .ToListAsync();
 
             if (locations == null || locations.Count() <= 0)
@@ -43,20 +45,25 @@ namespace ToTraveler.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
-            var location = await _context.Locations
-                .Include(loc => loc.Category)
-                .Include(loc => loc.Reviews)
+            var userId = _httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+
+            var locations = await _context.Locations
+                .Include(l => l.Category)
+                .Include(l => l.Reviews!
+                    .Where(r => r.IsPrivate == false || r.UserId == userId))
                 .FirstOrDefaultAsync(loc => loc.ID == id);
 
-            if (location == null)
+            if (locations == null)
                 return NotFound();
 
-            return Ok(location);
+            return Ok(locations);
         }
 
         [HttpGet("{location_id}/reviews")]
         public async Task<IActionResult> GetLocationReviews(int location_id)
         {
+            var userId = _httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+
             var location = await _context.Locations.FindAsync(location_id);
 
             if (location == null)
@@ -64,6 +71,7 @@ namespace ToTraveler.Controllers
 
             var reviews = await _context.Reviews
                 .Where(r => r.LocationID == location.ID)
+                .Where(r => r.IsPrivate == false || r.UserId == userId)
                 .ToListAsync();
 
             if (reviews == null || reviews.Count() <= 0)
@@ -77,10 +85,16 @@ namespace ToTraveler.Controllers
         public async Task<IActionResult> Post([FromBody] LocationDTO dto)
         {
             var validation = await IsValid(dto);
-            if (validation is not OkObjectResult)
+            if (validation is not OkResult)
                 return validation;
 
+            if (await _context.LocationCategories.FirstOrDefaultAsync(x => x.ID == dto.CategoryID) is null)
+                return NotFound("Location Category does not exist");
+
+            //Authorization
             var userId = _httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+            if(userId == null)
+                return Unauthorized();
 
             var location = new Location(dto.Title, dto.Description, dto.Latitude, dto.Longitude, dto.CategoryID, dto.Address, userId);
 
@@ -91,6 +105,7 @@ namespace ToTraveler.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize]
         public async Task<IActionResult> Put(int id, [FromBody] LocationDTO dto)
         {
             var validation = await IsValid(dto);
@@ -100,6 +115,11 @@ namespace ToTraveler.Controllers
             var location = await _context.Locations.FirstOrDefaultAsync(u => u.ID == id);
             if (location == null)
                 return NotFound();
+
+            //Authorization
+            var userId = _httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+            if(!_httpContext.User.IsInRole(UserRoles.Admin) && userId != location.UserId)
+                return Forbid();
 
             location.Title = dto.Title;
             location.Description = dto.Description;
@@ -122,16 +142,21 @@ namespace ToTraveler.Controllers
                 return NotFound();
             }
 
+            //Authorization
+            var userId = _httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+            if (!_httpContext.User.IsInRole(UserRoles.Admin) && userId != location.UserId)
+                return Forbid();
+
             //Removing all the Reviews assosiated with the Location
             var reviews = location.Reviews;
-            if(reviews != null)
+            if (reviews != null)
             {
                 foreach (var review in reviews)
                 {
                     _context.Reviews.Remove(review);
                 }
             }
-                
+
             //Removing the location
             _context.Locations.Remove(location);
             await _context.SaveChangesAsync();
@@ -147,10 +172,10 @@ namespace ToTraveler.Controllers
                 return BadRequest("Invalid Title");
 
             if (string.IsNullOrWhiteSpace(dto.Description))
-                return BadRequest("Invalid Address");
+                return BadRequest("Invalid Description");
 
             if (string.IsNullOrWhiteSpace(dto.Address))
-                return BadRequest("Invalid Description");
+                return BadRequest("Invalid Address");
 
             var category = await _context.LocationCategories.FirstOrDefaultAsync(lc => lc.ID == dto.CategoryID);
             if (category == null)
