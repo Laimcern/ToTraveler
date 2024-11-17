@@ -19,7 +19,7 @@ namespace ToTraveler
 
         public DbSet<Location> Locations { get; set; }
         public DbSet<Session> Sessions { get; set; }
-        public DbSet<Location_Category> Location_Categories { get; set; }
+        public DbSet<LocationCategory> LocationCategories { get; set; }
         public DbSet<Review> Reviews { get; set; }
     }
 }

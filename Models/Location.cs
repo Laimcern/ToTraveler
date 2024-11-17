@@ -11,7 +11,7 @@ namespace ToTraveler.Models
         public double Latitude { get; set; }
         public double Longitude { get; set; }
         public int CategoryID { get; set; }
-        public virtual Location_Category? Category { get; set; }
+        public virtual LocationCategory? Category { get; set; }
         public string? Address { get; set; }
 
         [Required]

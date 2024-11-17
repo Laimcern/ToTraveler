@@ -152,7 +152,7 @@ namespace ToTraveler.Controllers
             if (string.IsNullOrWhiteSpace(dto.Address))
                 return BadRequest("Invalid Description");
 
-            var category = await _context.Location_Categories.FirstOrDefaultAsync(lc => lc.ID == dto.CategoryID);
+            var category = await _context.LocationCategories.FirstOrDefaultAsync(lc => lc.ID == dto.CategoryID);
             if (category == null)
                 return NotFound("Category does not exist");
 

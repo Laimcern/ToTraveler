@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ToTraveler.Migrations
 {
     /// <inheritdoc />
-    public partial class identity : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -51,7 +51,7 @@ namespace ToTraveler.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Location_Categories",
+                name: "LocationCategories",
                 columns: table => new
                 {
                     ID = table.Column<int>(type: "int", nullable: false)
@@ -60,7 +60,7 @@ namespace ToTraveler.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Location_Categories", x => x.ID);
+                    table.PrimaryKey("PK_LocationCategories", x => x.ID);
                 });
 
             migrationBuilder.CreateTable(
@@ -170,6 +170,28 @@ namespace ToTraveler.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Sessions",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    LastRefreshToken = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    InitiatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    ExpiresAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    isRevoked = table.Column<bool>(type: "bit", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Sessions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Sessions_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Locations",
                 columns: table => new
                 {
@@ -187,9 +209,9 @@ namespace ToTraveler.Migrations
                 {
                     table.PrimaryKey("PK_Locations", x => x.ID);
                     table.ForeignKey(
-                        name: "FK_Locations_Location_Categories_CategoryID",
+                        name: "FK_Locations_LocationCategories_CategoryID",
                         column: x => x.CategoryID,
-                        principalTable: "Location_Categories",
+                        principalTable: "LocationCategories",
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -265,6 +287,11 @@ namespace ToTraveler.Migrations
                 name: "IX_Reviews_LocationID",
                 table: "Reviews",
                 column: "LocationID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Sessions_UserId",
+                table: "Sessions",
+                column: "UserId");
         }
 
         /// <inheritdoc />
@@ -289,16 +316,19 @@ namespace ToTraveler.Migrations
                 name: "Reviews");
 
             migrationBuilder.DropTable(
-                name: "AspNetRoles");
+                name: "Sessions");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
+                name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "Locations");
 
             migrationBuilder.DropTable(
-                name: "Location_Categories");
+                name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "LocationCategories");
         }
     }
 }

@@ -12,8 +12,8 @@ using ToTraveler;
 namespace ToTraveler.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241110192200_session")]
-    partial class session
+    [Migration("20241117145511_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -260,7 +260,7 @@ namespace ToTraveler.Migrations
                     b.ToTable("Locations");
                 });
 
-            modelBuilder.Entity("ToTraveler.Models.Location_Category", b =>
+            modelBuilder.Entity("ToTraveler.Models.LocationCategory", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
@@ -273,7 +273,7 @@ namespace ToTraveler.Migrations
 
                     b.HasKey("ID");
 
-                    b.ToTable("Location_Categories");
+                    b.ToTable("LocationCategories");
                 });
 
             modelBuilder.Entity("ToTraveler.Models.Review", b =>
@@ -390,7 +390,7 @@ namespace ToTraveler.Migrations
 
             modelBuilder.Entity("ToTraveler.Models.Location", b =>
                 {
-                    b.HasOne("ToTraveler.Models.Location_Category", "Category")
+                    b.HasOne("ToTraveler.Models.LocationCategory", "Category")
                         .WithMany()
                         .HasForeignKey("CategoryID")
                         .OnDelete(DeleteBehavior.Cascade)

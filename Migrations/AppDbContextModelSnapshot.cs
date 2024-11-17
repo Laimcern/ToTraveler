@@ -257,7 +257,7 @@ namespace ToTraveler.Migrations
                     b.ToTable("Locations");
                 });
 
-            modelBuilder.Entity("ToTraveler.Models.Location_Category", b =>
+            modelBuilder.Entity("ToTraveler.Models.LocationCategory", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
@@ -270,7 +270,7 @@ namespace ToTraveler.Migrations
 
                     b.HasKey("ID");
 
-                    b.ToTable("Location_Categories");
+                    b.ToTable("LocationCategories");
                 });
 
             modelBuilder.Entity("ToTraveler.Models.Review", b =>
@@ -387,7 +387,7 @@ namespace ToTraveler.Migrations
 
             modelBuilder.Entity("ToTraveler.Models.Location", b =>
                 {
-                    b.HasOne("ToTraveler.Models.Location_Category", "Category")
+                    b.HasOne("ToTraveler.Models.LocationCategory", "Category")
                         .WithMany()
                         .HasForeignKey("CategoryID")
                         .OnDelete(DeleteBehavior.Cascade)
