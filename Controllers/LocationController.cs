@@ -30,11 +30,22 @@ namespace ToTraveler.Controllers
         {
             var userId = _httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub);
 
-            var locations = await _context.Locations
+            // If Admin return all
+            if (_httpContext.User.IsInRole(UserRoles.Admin))
+            {
+                var allLocations = await _context.Locations
                 .Include(l => l.Category)
-                .Include(l => l.Reviews!
-                    .Where(r => r.IsPrivate == false || r.UserId == userId))
+                .Include(l => l.Reviews!)
                 .ToListAsync();
+                return Ok(allLocations);
+            }
+            
+            // If not Admin
+            var locations = await _context.Locations
+            .Include(l => l.Category)
+            .Include(l => l.Reviews!
+                .Where(r => r.IsPrivate == false || r.UserId == userId))
+            .ToListAsync();
 
             if (locations == null || locations.Count() <= 0)
                 return NotFound();
@@ -47,16 +58,27 @@ namespace ToTraveler.Controllers
         {
             var userId = _httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub);
 
-            var locations = await _context.Locations
+            // If Admin return all
+            if (_httpContext.User.IsInRole(UserRoles.Admin))
+            {
+                var allLocation = await _context.Locations
+                .Include(l => l.Category)
+                .Include(l => l.Reviews!)
+                .ToListAsync();
+                return Ok(allLocation);
+            }
+
+            // If not Admin
+            var location = await _context.Locations
                 .Include(l => l.Category)
                 .Include(l => l.Reviews!
                     .Where(r => r.IsPrivate == false || r.UserId == userId))
                 .FirstOrDefaultAsync(loc => loc.ID == id);
 
-            if (locations == null)
+            if (location == null)
                 return NotFound();
 
-            return Ok(locations);
+            return Ok(location);
         }
 
         [HttpGet("{location_id}/reviews")]
@@ -68,6 +90,18 @@ namespace ToTraveler.Controllers
 
             if (location == null)
                 return NotFound("Location does not exist");
+
+            if (_httpContext.User.IsInRole(UserRoles.Admin))
+            {
+                var allReviews = await _context.Reviews
+                    .Where(r => r.LocationID == location.ID)
+                    .ToListAsync();
+
+                if (allReviews == null || allReviews.Count() <= 0)
+                    return NotFound("Location does not have Reviews");
+
+                return Ok(allReviews);
+            }
 
             var reviews = await _context.Reviews
                 .Where(r => r.LocationID == location.ID)
