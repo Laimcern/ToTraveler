@@ -35,16 +35,20 @@ namespace ToTraveler.Controllers
             {
                 var allLocations = await _context.Locations
                 .Include(l => l.Category)
+                .Include(l => l.User)
                 .Include(l => l.Reviews!)
+                    .ThenInclude(r => r.User)
                 .ToListAsync();
                 return Ok(allLocations);
             }
-            
+
             // If not Admin
             var locations = await _context.Locations
             .Include(l => l.Category)
+            .Include(l => l.User)
             .Include(l => l.Reviews!
                 .Where(r => r.IsPrivate == false || r.UserId == userId))
+                .ThenInclude(r => r.User)
             .ToListAsync();
 
             if (locations == null || locations.Count() <= 0)
@@ -64,6 +68,7 @@ namespace ToTraveler.Controllers
                 var allLocation = await _context.Locations
                 .Include(l => l.Category)
                 .Include(l => l.Reviews!)
+                    .ThenInclude(r => r.User)
                 .ToListAsync();
                 return Ok(allLocation);
             }
@@ -73,6 +78,7 @@ namespace ToTraveler.Controllers
                 .Include(l => l.Category)
                 .Include(l => l.Reviews!
                     .Where(r => r.IsPrivate == false || r.UserId == userId))
+                    .ThenInclude(r => r.User)
                 .FirstOrDefaultAsync(loc => loc.ID == id);
 
             if (location == null)
@@ -127,7 +133,7 @@ namespace ToTraveler.Controllers
 
             //Authorization
             var userId = _httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub);
-            if(userId == null)
+            if (userId == null)
                 return Unauthorized();
 
             var location = new Location(dto.Title, dto.Description, dto.Latitude, dto.Longitude, dto.CategoryID, dto.Address, userId);
@@ -143,7 +149,7 @@ namespace ToTraveler.Controllers
         public async Task<IActionResult> Put(int id, [FromBody] LocationDTO dto)
         {
             var validation = await IsValid(dto);
-            if (validation is not OkObjectResult)
+            if (validation is not OkResult)
                 return validation;
 
             var location = await _context.Locations.FirstOrDefaultAsync(u => u.ID == id);
@@ -152,7 +158,7 @@ namespace ToTraveler.Controllers
 
             //Authorization
             var userId = _httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub);
-            if(!_httpContext.User.IsInRole(UserRoles.Admin) && userId != location.UserId)
+            if (!_httpContext.User.IsInRole(UserRoles.Admin) && userId != location.UserId)
                 return Forbid();
 
             location.Title = dto.Title;

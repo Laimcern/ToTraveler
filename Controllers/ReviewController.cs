@@ -39,6 +39,7 @@ namespace ToTraveler.Controllers
             // If Guest return not private Reviews, if User also return User private Reviews
             var reviews = await _context.Reviews
                 .Where(r => r.IsPrivate == false || r.UserId == userId)
+                .Include(r => r.User)
                 .ToListAsync();
 
             if (reviews == null || reviews.Count <= 0)
@@ -91,7 +92,7 @@ namespace ToTraveler.Controllers
             await _context.Reviews.AddAsync(review);
             await _context.SaveChangesAsync();
 
-            return new ObjectResult(dto) { StatusCode = StatusCodes.Status201Created };
+            return new ObjectResult(review) { StatusCode = StatusCodes.Status201Created };
         }
 
         [HttpPut("{id}")]
@@ -101,7 +102,10 @@ namespace ToTraveler.Controllers
             if (dto == null)
                 return BadRequest();
 
-            var review = await _context.Reviews.FirstOrDefaultAsync(u => u.ID == id);
+            var review = await _context.Reviews
+                .Include(r=>r.User)
+                .FirstOrDefaultAsync(u => u.ID == id);
+
             if (review == null)
                 return NotFound();
 

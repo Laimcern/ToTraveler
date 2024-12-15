@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using ToTraveler.Auth.Model;
 
 namespace ToTraveler.Models
 {
@@ -14,7 +15,7 @@ namespace ToTraveler.Models
         
         [Required]
         public string UserId { get; set; }
-        //public User User { get; set; }
+        public virtual User User { get; set; }
         public int LocationID { get; set; }
         //public virtual Location? Location { get; set; }
 
@@ -22,6 +23,7 @@ namespace ToTraveler.Models
         {
             
         }
+
         public Review(int rating, string? text, bool isPrivate, string userID, int locationID)
         {
             Rating = rating;

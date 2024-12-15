@@ -51,7 +51,29 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("DevCors", policy =>
+    {
+        policy.WithOrigins(
+            "http://localhost:5173",
+            "http://192.168.239.143:5173"
+            ) 
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials();
+    });
+});
+
 var app = builder.Build();
+
+
+
+//request catcher
+app.Use(async (HttpContext, next) =>
+{
+    await next();
+});
 
 using var scope = app.Services.CreateScope();
 
@@ -64,16 +86,24 @@ await dbSeeder.SeedAsync();
 // Configure the HTTP request pipeline.
 //if (app.Environment.IsDevelopment())
 //{
-app.UseSwagger();
-app.UseSwaggerUI();
+//app.UseSwagger();
+//app.UseSwaggerUI();
 //}
 
 //app.UseHttpsRedirection();
+
+app.UseCors("DevCors");
+
+app.UseStaticFiles();
+
+app.UseDefaultFiles();
 
 app.UseAuthentication();
 
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapFallbackToFile("index.html");
 
 app.Run();
