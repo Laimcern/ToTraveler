@@ -1,0 +1,1114 @@
+---
+openapi: "3.0.1"
+info: 
+  title: "Your API"
+  version: "v1"
+paths: 
+  /api/Register: 
+    post: 
+      tags: 
+      - "Auth"
+      requestBody: 
+        content: 
+          application/json: 
+            schema: 
+              $ref: "#/components/schemas/RegiseterUserDto"
+            example: 
+              userName: "john.doe"
+              email: "john.doe@example.com"
+              password: "CapitalLetterNumberAndSymbol(JohnDoe4!)"
+          text/json: 
+            schema: 
+              $ref: "#/components/schemas/RegiseterUserDto"
+            example: 
+              userName: "john.doe"
+              email: "john.doe@example.com"
+              password: "CapitalLetterNumberAndSymbol(JohnDoe4!)"
+          application/*+json: 
+            schema: 
+              $ref: "#/components/schemas/RegiseterUserDto"
+            example: 
+              userName: "john.doe"
+              email: "john.doe@example.com"
+              password: "CapitalLetterNumberAndSymbol(JohnDoe4!)"
+      responses: 
+        201: 
+          description: "Created"
+        400: 
+          description: "Bad Request"
+        409: 
+          description: "Conflict"
+  /api/Login: 
+    post: 
+      tags: 
+      - "Auth"
+      requestBody: 
+        content: 
+          application/json: 
+            schema: 
+              $ref: "#/components/schemas/LoginUserDto"
+            example: 
+              userName: "john.doe"
+              password: "CapitalLetterNumberAndSymbol(JohnDoe4!)"
+          text/json: 
+            schema: 
+              $ref: "#/components/schemas/LoginUserDto"
+            example: 
+              userName: "john.doe"
+              password: "CapitalLetterNumberAndSymbol(JohnDoe4!)"
+          application/*+json: 
+            schema: 
+              $ref: "#/components/schemas/LoginUserDto"
+            example: 
+              userName: "john.doe"
+              password: "CapitalLetterNumberAndSymbol(JohnDoe4!)"
+      responses: 
+        200: 
+          description: "OK"
+          content: 
+            application/json: 
+              schema: 
+                $ref: "#/components/schemas/SuccessfulLoginUserDto"
+              example: 
+                accessToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYWRtaW4iLCJqdGkiOiJhYzY3MWI5NS00ODRhLTRmMDktOGNkZS04ZWI1N2RkZTlhMGUiLCJzdWIiOiI1Y2ZkMGZjZS0yNWQyLTRlZTQtYTk4ZC04ODdjNDI2OWVmMjYiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOlsiQWRtaW4iLCJVc2VyIl0sImV4cCI6MTczNDI3MzE0MSwiaXNzIjoiTGFpbWlzIiwiYXVkIjoiVHJ1c3RlZENsaWVudCJ9.Ev77_w9gQksd4SMAKmjHmvJrrrEP7JNjITdNK_Hs3T8"
+        400: 
+          description: "Bad Request"
+        409: 
+          description: "Conflict"
+  /api/AccessToken: 
+    post: 
+      tags: 
+      - "Auth"
+      responses: 
+        200: 
+          description: "OK"
+          content: 
+            application/json: 
+              schema: 
+                $ref: "#/components/schemas/SuccessfulLoginUserDto"
+              example: 
+                accessToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYWRtaW4iLCJqdGkiOiJhYzY3MWI5NS00ODRhLTRmMDktOGNkZS04ZWI1N2RkZTlhMGUiLCJzdWIiOiI1Y2ZkMGZjZS0yNWQyLTRlZTQtYTk4ZC04ODdjNDI2OWVmMjYiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOlsiQWRtaW4iLCJVc2VyIl0sImV4cCI6MTczNDI3MzE0MSwiaXNzIjoiTGFpbWlzIiwiYXVkIjoiVHJ1c3RlZENsaWVudCJ9.Ev77_w9gQksd4SMAKmjHmvJrrrEP7JNjITdNK_Hs3T8"
+        422: 
+          description: "Unprocessable Content"
+  /api/Logout: 
+    post: 
+      tags: 
+      - "Auth"
+      responses: 
+        200: 
+          description: "OK"
+        422: 
+          description: "Unprocessable Content"
+  /api/Location: 
+    get: 
+      tags: 
+      - "Location"
+      responses: 
+        200: 
+          description: "OK"
+          content: 
+            application/json: 
+              schema: 
+                type: "array"
+                items: 
+                  $ref: "#/components/schemas/Location"
+        404: 
+          description: "Not Found"
+          content: 
+            application/json: 
+              schema: 
+                $ref: "#/components/schemas/ProblemDetails"
+              example: 
+                title: "Location Not Found"
+                status: "404"
+        500: 
+          description: "Internal Server Error"
+          content: 
+            application/json: 
+              schema: 
+                $ref: "#/components/schemas/ProblemDetails"
+              example: 
+                title: "Internal server error"
+                status: "500"
+    post: 
+      tags: 
+      - "Location"
+      requestBody: 
+        content: 
+          application/json: 
+            schema: 
+              $ref: "#/components/schemas/LocationDTO"
+            example: 
+              title: "Eiffel Tower"
+              description: "Famous landmark in Paris, France"
+              latitude: "48.858372"
+              longitude: "2.294481"
+              categoryID: "1"
+              address: "Champ de Mars, 5 Avenue Anatole France, 75007 Paris, France"
+          text/json: 
+            schema: 
+              $ref: "#/components/schemas/LocationDTO"
+            example: 
+              title: "Eiffel Tower"
+              description: "Famous landmark in Paris, France"
+              latitude: "48.858372"
+              longitude: "2.294481"
+              categoryID: "1"
+              address: "Champ de Mars, 5 Avenue Anatole France, 75007 Paris, France"
+          application/*+json: 
+            schema: 
+              $ref: "#/components/schemas/LocationDTO"
+            example: 
+              title: "Eiffel Tower"
+              description: "Famous landmark in Paris, France"
+              latitude: "48.858372"
+              longitude: "2.294481"
+              categoryID: "1"
+              address: "Champ de Mars, 5 Avenue Anatole France, 75007 Paris, France"
+      responses: 
+        201: 
+          description: "Created"
+          content: 
+            application/json: 
+              schema: 
+                $ref: "#/components/schemas/Location"
+              example: 
+                id: "1"
+                title: "Eiffel Tower"
+                description: "Famous landmark in Paris, France"
+                latitude: "48.858372"
+                longitude: "2.294481"
+                categoryID: "1"
+                category: 
+                  id: "0"
+                  name: "Landmarks"
+                address: "Champ de Mars, 5 Avenue Anatole France, 75007 Paris, France"
+                userId: "user123"
+                user: 
+                reviews: 
+                - id: "1"
+                  rating: "5"
+                  text: 
+                  isPrivate: "false"
+                  userId: "user456"
+                  user: 
+                    id: "2a2ec8f8-6458-499c-ac25-644b7881385a"
+                    userName: "john.doe"
+                    normalizedUserName: 
+                    email: 
+                    normalizedEmail: 
+                    emailConfirmed: "false"
+                    passwordHash: 
+                    securityStamp: "ee53b529-a481-4e97-84b5-ccfb68f97537"
+                    concurrencyStamp: "091a31e9-3b71-46ef-9d44-5c85f94615ec"
+                    phoneNumber: 
+                    phoneNumberConfirmed: "false"
+                    twoFactorEnabled: "false"
+                    lockoutEnd: 
+                    lockoutEnabled: "false"
+                    accessFailedCount: "0"
+                  locationID: "0"
+        400: 
+          description: "Bad Request"
+          content: 
+            application/json: 
+              schema: 
+                $ref: "#/components/schemas/ProblemDetails"
+              example: 
+                title: "Bad request"
+                status: "400"
+        401: 
+          description: "Unauthorized"
+          content: 
+            application/json: 
+              schema: 
+                $ref: "#/components/schemas/ProblemDetails"
+              example: 
+                title: "Unauthorized"
+                status: "401"
+        403: 
+          description: "Forbidden"
+          content: 
+            application/json: 
+              schema: 
+                $ref: "#/components/schemas/ProblemDetails"
+              example: 
+                title: "Forbidden"
+                status: "403"
+        404: 
+          description: "Not Found"
+          content: 
+            application/json: 
+              schema: 
+                $ref: "#/components/schemas/ProblemDetails"
+              example: 
+                title: "Location Not Found"
+                status: "404"
+        500: 
+          description: "Internal Server Error"
+          content: 
+            application/json: 
+              schema: 
+                $ref: "#/components/schemas/ProblemDetails"
+              example: 
+                title: "Internal server error"
+                status: "500"
+  /api/Location/{id}: 
+    get: 
+      tags: 
+      - "Location"
+      parameters: 
+      - name: "id"
+        in: "path"
+        required: "true"
+        schema: 
+          type: "integer"
+          format: "int32"
+      responses: 
+        200: 
+          description: "OK"
+          content: 
+            application/json: 
+              schema: 
+                $ref: "#/components/schemas/Location"
+              example: 
+                id: "1"
+                title: "Eiffel Tower"
+                description: "Famous landmark in Paris, France"
+                latitude: "48.858372"
+                longitude: "2.294481"
+                categoryID: "1"
+                category: 
+                  id: "0"
+                  name: "Landmarks"
+                address: "Champ de Mars, 5 Avenue Anatole France, 75007 Paris, France"
+                userId: "user123"
+                user: 
+                reviews: 
+                - id: "1"
+                  rating: "5"
+                  text: 
+                  isPrivate: "false"
+                  userId: "user456"
+                  user: 
+                    id: "db80b0be-c625-4d45-b383-315a5e946cae"
+                    userName: "john.doe"
+                    normalizedUserName: 
+                    email: 
+                    normalizedEmail: 
+                    emailConfirmed: "false"
+                    passwordHash: 
+                    securityStamp: "bc7dee11-f546-4e77-9d6a-1feea2448d98"
+                    concurrencyStamp: "4b0df198-a37d-4a47-b281-c10857c5d77b"
+                    phoneNumber: 
+                    phoneNumberConfirmed: "false"
+                    twoFactorEnabled: "false"
+                    lockoutEnd: 
+                    lockoutEnabled: "false"
+                    accessFailedCount: "0"
+                  locationID: "0"
+        404: 
+          description: "Not Found"
+          content: 
+            application/json: 
+              schema: 
+                $ref: "#/components/schemas/ProblemDetails"
+              example: 
+                title: "Location Not Found"
+                status: "404"
+        500: 
+          description: "Internal Server Error"
+          content: 
+            application/json: 
+              schema: 
+                $ref: "#/components/schemas/ProblemDetails"
+              example: 
+                title: "Internal server error"
+                status: "500"
+    put: 
+      tags: 
+      - "Location"
+      parameters: 
+      - name: "id"
+        in: "path"
+        required: "true"
+        schema: 
+          type: "integer"
+          format: "int32"
+      requestBody: 
+        content: 
+          application/json: 
+            schema: 
+              $ref: "#/components/schemas/LocationDTO"
+            example: 
+              title: "Eiffel Tower"
+              description: "Famous landmark in Paris, France"
+              latitude: "48.858372"
+              longitude: "2.294481"
+              categoryID: "1"
+              address: "Champ de Mars, 5 Avenue Anatole France, 75007 Paris, France"
+          text/json: 
+            schema: 
+              $ref: "#/components/schemas/LocationDTO"
+            example: 
+              title: "Eiffel Tower"
+              description: "Famous landmark in Paris, France"
+              latitude: "48.858372"
+              longitude: "2.294481"
+              categoryID: "1"
+              address: "Champ de Mars, 5 Avenue Anatole France, 75007 Paris, France"
+          application/*+json: 
+            schema: 
+              $ref: "#/components/schemas/LocationDTO"
+            example: 
+              title: "Eiffel Tower"
+              description: "Famous landmark in Paris, France"
+              latitude: "48.858372"
+              longitude: "2.294481"
+              categoryID: "1"
+              address: "Champ de Mars, 5 Avenue Anatole France, 75007 Paris, France"
+      responses: 
+        201: 
+          description: "Created"
+          content: 
+            application/json: 
+              schema: 
+                $ref: "#/components/schemas/Location"
+              example: 
+                id: "1"
+                title: "Eiffel Tower"
+                description: "Famous landmark in Paris, France"
+                latitude: "48.858372"
+                longitude: "2.294481"
+                categoryID: "1"
+                category: 
+                  id: "0"
+                  name: "Landmarks"
+                address: "Champ de Mars, 5 Avenue Anatole France, 75007 Paris, France"
+                userId: "user123"
+                user: 
+                reviews: 
+                - id: "1"
+                  rating: "5"
+                  text: 
+                  isPrivate: "false"
+                  userId: "user456"
+                  user: 
+                    id: "180f5f94-aee8-40fd-94c3-9e8f2b1a3979"
+                    userName: "john.doe"
+                    normalizedUserName: 
+                    email: 
+                    normalizedEmail: 
+                    emailConfirmed: "false"
+                    passwordHash: 
+                    securityStamp: "d4ab99e2-166f-4fab-8c6d-928e5c97fb09"
+                    concurrencyStamp: "c4274207-7210-4616-a63e-52276a6a5dfc"
+                    phoneNumber: 
+                    phoneNumberConfirmed: "false"
+                    twoFactorEnabled: "false"
+                    lockoutEnd: 
+                    lockoutEnabled: "false"
+                    accessFailedCount: "0"
+                  locationID: "0"
+        400: 
+          description: "Bad Request"
+          content: 
+            application/json: 
+              schema: 
+                $ref: "#/components/schemas/ProblemDetails"
+              example: 
+                title: "Bad request"
+                status: "400"
+        401: 
+          description: "Unauthorized"
+          content: 
+            application/json: 
+              schema: 
+                $ref: "#/components/schemas/ProblemDetails"
+              example: 
+                title: "Unauthorized"
+                status: "401"
+        403: 
+          description: "Forbidden"
+          content: 
+            application/json: 
+              schema: 
+                $ref: "#/components/schemas/ProblemDetails"
+              example: 
+                title: "Forbidden"
+                status: "403"
+        404: 
+          description: "Not Found"
+          content: 
+            application/json: 
+              schema: 
+                $ref: "#/components/schemas/ProblemDetails"
+              example: 
+                title: "Location Not Found"
+                status: "404"
+        500: 
+          description: "Internal Server Error"
+          content: 
+            application/json: 
+              schema: 
+                $ref: "#/components/schemas/ProblemDetails"
+              example: 
+                title: "Internal server error"
+                status: "500"
+    delete: 
+      tags: 
+      - "Location"
+      parameters: 
+      - name: "id"
+        in: "path"
+        required: "true"
+        schema: 
+          type: "integer"
+          format: "int32"
+      responses: 
+        200: 
+          description: "OK"
+          content: 
+            application/json: 
+              schema: 
+                $ref: "#/components/schemas/Location"
+              example: 
+                id: "1"
+                title: "Eiffel Tower"
+                description: "Famous landmark in Paris, France"
+                latitude: "48.858372"
+                longitude: "2.294481"
+                categoryID: "1"
+                category: 
+                  id: "0"
+                  name: "Landmarks"
+                address: "Champ de Mars, 5 Avenue Anatole France, 75007 Paris, France"
+                userId: "user123"
+                user: 
+                reviews: 
+                - id: "1"
+                  rating: "5"
+                  text: 
+                  isPrivate: "false"
+                  userId: "user456"
+                  user: 
+                    id: "17bb4c24-ee80-4f2a-8026-5240a7508457"
+                    userName: "john.doe"
+                    normalizedUserName: 
+                    email: 
+                    normalizedEmail: 
+                    emailConfirmed: "false"
+                    passwordHash: 
+                    securityStamp: "0c2c4713-90fa-45f2-93f3-7305d8e74a2a"
+                    concurrencyStamp: "9a07175d-693b-4d0b-bc37-86ff7c237309"
+                    phoneNumber: 
+                    phoneNumberConfirmed: "false"
+                    twoFactorEnabled: "false"
+                    lockoutEnd: 
+                    lockoutEnabled: "false"
+                    accessFailedCount: "0"
+                  locationID: "0"
+        403: 
+          description: "Forbidden"
+          content: 
+            application/json: 
+              schema: 
+                $ref: "#/components/schemas/ProblemDetails"
+              example: 
+                title: "Forbidden"
+                status: "403"
+        404: 
+          description: "Not Found"
+          content: 
+            application/json: 
+              schema: 
+                $ref: "#/components/schemas/ProblemDetails"
+              example: 
+                title: "Location Not Found"
+                status: "404"
+        500: 
+          description: "Internal Server Error"
+          content: 
+            application/json: 
+              schema: 
+                $ref: "#/components/schemas/ProblemDetails"
+              example: 
+                title: "Internal server error"
+                status: "500"
+  /api/Location/{location_id}/reviews: 
+    get: 
+      tags: 
+      - "Location"
+      parameters: 
+      - name: "location_id"
+        in: "path"
+        required: "true"
+        schema: 
+          type: "integer"
+          format: "int32"
+      responses: 
+        200: 
+          description: "OK"
+          content: 
+            application/json: 
+              schema: 
+                type: "array"
+                items: 
+                  $ref: "#/components/schemas/Review"
+        404: 
+          description: "Not Found"
+          content: 
+            application/json: 
+              schema: 
+                $ref: "#/components/schemas/ProblemDetails"
+              example: 
+                title: "Location Not Found"
+                status: "404"
+        500: 
+          description: "Internal Server Error"
+          content: 
+            application/json: 
+              schema: 
+                $ref: "#/components/schemas/ProblemDetails"
+              example: 
+                title: "Internal server error"
+                status: "500"
+  /api/LocationCategory: 
+    get: 
+      tags: 
+      - "LocationCategory"
+      responses: 
+        200: 
+          description: "OK"
+          content: 
+            text/plain: 
+              schema: 
+                type: "array"
+                items: 
+                  $ref: "#/components/schemas/LocationCategory"
+            application/json: 
+              schema: 
+                type: "array"
+                items: 
+                  $ref: "#/components/schemas/LocationCategory"
+            text/json: 
+              schema: 
+                type: "array"
+                items: 
+                  $ref: "#/components/schemas/LocationCategory"
+        404: 
+          description: "Not Found"
+    post: 
+      tags: 
+      - "LocationCategory"
+      requestBody: 
+        content: 
+          application/json: 
+            schema: 
+              type: "string"
+          text/json: 
+            schema: 
+              type: "string"
+          application/*+json: 
+            schema: 
+              type: "string"
+      responses: 
+        201: 
+          description: "Created"
+          content: 
+            text/plain: 
+              schema: 
+                $ref: "#/components/schemas/LocationCategory"
+            application/json: 
+              schema: 
+                $ref: "#/components/schemas/LocationCategory"
+            text/json: 
+              schema: 
+                $ref: "#/components/schemas/LocationCategory"
+        400: 
+          description: "Bad Request"
+        401: 
+          description: "Unauthorized"
+        409: 
+          description: "Conflict"
+  /api/LocationCategory/{id}: 
+    get: 
+      tags: 
+      - "LocationCategory"
+      parameters: 
+      - name: "id"
+        in: "path"
+        required: "true"
+        schema: 
+          type: "integer"
+          format: "int32"
+      responses: 
+        200: 
+          description: "OK"
+          content: 
+            text/plain: 
+              schema: 
+                $ref: "#/components/schemas/LocationCategory"
+            application/json: 
+              schema: 
+                $ref: "#/components/schemas/LocationCategory"
+            text/json: 
+              schema: 
+                $ref: "#/components/schemas/LocationCategory"
+        404: 
+          description: "Not Found"
+    put: 
+      tags: 
+      - "LocationCategory"
+      parameters: 
+      - name: "id"
+        in: "path"
+        required: "true"
+        schema: 
+          type: "integer"
+          format: "int32"
+      requestBody: 
+        content: 
+          application/json: 
+            schema: 
+              type: "string"
+          text/json: 
+            schema: 
+              type: "string"
+          application/*+json: 
+            schema: 
+              type: "string"
+      responses: 
+        200: 
+          description: "OK"
+          content: 
+            text/plain: 
+              schema: 
+                $ref: "#/components/schemas/LocationCategory"
+            application/json: 
+              schema: 
+                $ref: "#/components/schemas/LocationCategory"
+            text/json: 
+              schema: 
+                $ref: "#/components/schemas/LocationCategory"
+        400: 
+          description: "Bad Request"
+        401: 
+          description: "Unauthorized"
+        404: 
+          description: "Not Found"
+        409: 
+          description: "Conflict"
+    delete: 
+      tags: 
+      - "LocationCategory"
+      parameters: 
+      - name: "id"
+        in: "path"
+        required: "true"
+        schema: 
+          type: "integer"
+          format: "int32"
+      responses: 
+        200: 
+          description: "OK"
+          content: 
+            text/plain: 
+              schema: 
+                $ref: "#/components/schemas/LocationCategory"
+            application/json: 
+              schema: 
+                $ref: "#/components/schemas/LocationCategory"
+            text/json: 
+              schema: 
+                $ref: "#/components/schemas/LocationCategory"
+        401: 
+          description: "Unauthorized"
+        404: 
+          description: "Not Found"
+  /api/Review: 
+    get: 
+      tags: 
+      - "Review"
+      responses: 
+        200: 
+          description: "OK"
+          content: 
+            text/plain: 
+              schema: 
+                type: "array"
+                items: 
+                  $ref: "#/components/schemas/Review"
+            application/json: 
+              schema: 
+                type: "array"
+                items: 
+                  $ref: "#/components/schemas/Review"
+            text/json: 
+              schema: 
+                type: "array"
+                items: 
+                  $ref: "#/components/schemas/Review"
+        404: 
+          description: "Not Found"
+    post: 
+      tags: 
+      - "Review"
+      requestBody: 
+        content: 
+          application/json: 
+            schema: 
+              $ref: "#/components/schemas/ReviewDTO"
+          text/json: 
+            schema: 
+              $ref: "#/components/schemas/ReviewDTO"
+          application/*+json: 
+            schema: 
+              $ref: "#/components/schemas/ReviewDTO"
+      responses: 
+        201: 
+          description: "Created"
+          content: 
+            text/plain: 
+              schema: 
+                $ref: "#/components/schemas/Review"
+            application/json: 
+              schema: 
+                $ref: "#/components/schemas/Review"
+            text/json: 
+              schema: 
+                $ref: "#/components/schemas/Review"
+        400: 
+          description: "Bad Request"
+        401: 
+          description: "Unauthorized"
+        404: 
+          description: "Not Found"
+  /api/Review/{id}: 
+    get: 
+      tags: 
+      - "Review"
+      parameters: 
+      - name: "id"
+        in: "path"
+        required: "true"
+        schema: 
+          type: "integer"
+          format: "int32"
+      responses: 
+        200: 
+          description: "OK"
+          content: 
+            text/plain: 
+              schema: 
+                $ref: "#/components/schemas/Review"
+            application/json: 
+              schema: 
+                $ref: "#/components/schemas/Review"
+            text/json: 
+              schema: 
+                $ref: "#/components/schemas/Review"
+        404: 
+          description: "Not Found"
+    put: 
+      tags: 
+      - "Review"
+      parameters: 
+      - name: "id"
+        in: "path"
+        required: "true"
+        schema: 
+          type: "integer"
+          format: "int32"
+      requestBody: 
+        content: 
+          application/json: 
+            schema: 
+              $ref: "#/components/schemas/ReviewDTO_Put"
+          text/json: 
+            schema: 
+              $ref: "#/components/schemas/ReviewDTO_Put"
+          application/*+json: 
+            schema: 
+              $ref: "#/components/schemas/ReviewDTO_Put"
+      responses: 
+        200: 
+          description: "OK"
+          content: 
+            text/plain: 
+              schema: 
+                $ref: "#/components/schemas/Review"
+            application/json: 
+              schema: 
+                $ref: "#/components/schemas/Review"
+            text/json: 
+              schema: 
+                $ref: "#/components/schemas/Review"
+        400: 
+          description: "Bad Request"
+        401: 
+          description: "Unauthorized"
+        403: 
+          description: "Forbidden"
+        404: 
+          description: "Not Found"
+    delete: 
+      tags: 
+      - "Review"
+      parameters: 
+      - name: "id"
+        in: "path"
+        required: "true"
+        schema: 
+          type: "integer"
+          format: "int32"
+      responses: 
+        200: 
+          description: "OK"
+          content: 
+            text/plain: 
+              schema: 
+                $ref: "#/components/schemas/Review"
+            application/json: 
+              schema: 
+                $ref: "#/components/schemas/Review"
+            text/json: 
+              schema: 
+                $ref: "#/components/schemas/Review"
+        401: 
+          description: "Unauthorized"
+        403: 
+          description: "Forbidden"
+        404: 
+          description: "Not Found"
+components: 
+  schemas: 
+    Location: 
+      required: 
+      - "userId"
+      type: "object"
+      properties: 
+        id: 
+          type: "integer"
+          format: "int32"
+        title: 
+          type: "string"
+          nullable: "true"
+        description: 
+          type: "string"
+          nullable: "true"
+        latitude: 
+          type: "number"
+          format: "double"
+        longitude: 
+          type: "number"
+          format: "double"
+        categoryID: 
+          type: "integer"
+          format: "int32"
+        category: 
+          $ref: "#/components/schemas/LocationCategory"
+        address: 
+          type: "string"
+          nullable: "true"
+        userId: 
+          minLength: "1"
+          type: "string"
+        user: 
+          $ref: "#/components/schemas/User"
+        reviews: 
+          type: "array"
+          items: 
+            $ref: "#/components/schemas/Review"
+          nullable: "true"
+      additionalProperties: "false"
+    LocationCategory: 
+      type: "object"
+      properties: 
+        id: 
+          type: "integer"
+          format: "int32"
+        name: 
+          type: "string"
+          nullable: "true"
+      additionalProperties: "false"
+    LocationDTO: 
+      type: "object"
+      properties: 
+        title: 
+          type: "string"
+          nullable: "true"
+        description: 
+          type: "string"
+          nullable: "true"
+        latitude: 
+          maximum: "90"
+          minimum: "-90"
+          type: "number"
+          format: "double"
+        longitude: 
+          maximum: "180"
+          minimum: "-180"
+          type: "number"
+          format: "double"
+        categoryID: 
+          type: "integer"
+          format: "int32"
+        address: 
+          type: "string"
+          nullable: "true"
+      additionalProperties: "false"
+    LoginUserDto: 
+      type: "object"
+      properties: 
+        userName: 
+          type: "string"
+          nullable: "true"
+        password: 
+          type: "string"
+          nullable: "true"
+      additionalProperties: "false"
+    ProblemDetails: 
+      type: "object"
+      properties: 
+        type: 
+          type: "string"
+          nullable: "true"
+        title: 
+          type: "string"
+          nullable: "true"
+        status: 
+          type: "integer"
+          format: "int32"
+          nullable: "true"
+        detail: 
+          type: "string"
+          nullable: "true"
+        instance: 
+          type: "string"
+          nullable: "true"
+      additionalProperties: 
+    RegiseterUserDto: 
+      type: "object"
+      properties: 
+        userName: 
+          type: "string"
+          nullable: "true"
+        email: 
+          type: "string"
+          nullable: "true"
+        password: 
+          type: "string"
+          nullable: "true"
+      additionalProperties: "false"
+    Review: 
+      required: 
+      - "userId"
+      type: "object"
+      properties: 
+        id: 
+          type: "integer"
+          format: "int32"
+        rating: 
+          maximum: "5"
+          minimum: "1"
+          type: "integer"
+          format: "int32"
+        text: 
+          type: "string"
+          nullable: "true"
+        isPrivate: 
+          type: "boolean"
+        userId: 
+          minLength: "1"
+          type: "string"
+        user: 
+          $ref: "#/components/schemas/User"
+        locationID: 
+          type: "integer"
+          format: "int32"
+      additionalProperties: "false"
+    ReviewDTO: 
+      type: "object"
+      properties: 
+        rating: 
+          maximum: "5"
+          minimum: "1"
+          type: "integer"
+          format: "int32"
+        text: 
+          type: "string"
+          nullable: "true"
+        isPrivate: 
+          type: "boolean"
+        locationID: 
+          type: "integer"
+          format: "int32"
+      additionalProperties: "false"
+    ReviewDTO_Put: 
+      type: "object"
+      properties: 
+        rating: 
+          maximum: "5"
+          minimum: "1"
+          type: "integer"
+          format: "int32"
+        text: 
+          type: "string"
+          nullable: "true"
+        isPrivate: 
+          type: "boolean"
+      additionalProperties: "false"
+    SuccessfulLoginUserDto: 
+      type: "object"
+      properties: 
+        accessToken: 
+          type: "string"
+          nullable: "true"
+      additionalProperties: "false"
+    User: 
+      type: "object"
+      properties: 
+        id: 
+          type: "string"
+          nullable: "true"
+        userName: 
+          type: "string"
+          nullable: "true"
+        normalizedUserName: 
+          type: "string"
+          nullable: "true"
+        email: 
+          type: "string"
+          nullable: "true"
+        normalizedEmail: 
+          type: "string"
+          nullable: "true"
+        emailConfirmed: 
+          type: "boolean"
+        passwordHash: 
+          type: "string"
+          nullable: "true"
+        securityStamp: 
+          type: "string"
+          nullable: "true"
+        concurrencyStamp: 
+          type: "string"
+          nullable: "true"
+        phoneNumber: 
+          type: "string"
+          nullable: "true"
+        phoneNumberConfirmed: 
+          type: "boolean"
+        twoFactorEnabled: 
+          type: "boolean"
+        lockoutEnd: 
+          type: "string"
+          format: "date-time"
+          nullable: "true"
+        lockoutEnabled: 
+          type: "boolean"
+        accessFailedCount: 
+          type: "integer"
+          format: "int32"
+      additionalProperties: "false"

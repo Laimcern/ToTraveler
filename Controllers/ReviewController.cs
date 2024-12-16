@@ -6,8 +6,7 @@ using System.Security.Claims;
 using ToTraveler.Auth.Model;
 using ToTraveler.DTOs;
 using ToTraveler.Models;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+using Swashbuckle.AspNetCore.Annotations; // Add this for Swagger annotations
 
 namespace ToTraveler.Controllers
 {
@@ -25,18 +24,18 @@ namespace ToTraveler.Controllers
         }
 
         [HttpGet]
+        [SwaggerResponse(200, "Successfully retrieved reviews.", typeof(List<Review>))]
+        [SwaggerResponse(404, "No reviews found.")]
         public async Task<IActionResult> Get()
         {
             var userId = _httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub);
 
-            // If Admin return all
             if (_httpContext.User.IsInRole(UserRoles.Admin))
             {
                 var allReviews = await _context.Reviews.ToListAsync();
                 return Ok(allReviews);
             }
 
-            // If Guest return not private Reviews, if User also return User private Reviews
             var reviews = await _context.Reviews
                 .Where(r => r.IsPrivate == false || r.UserId == userId)
                 .Include(r => r.User)
@@ -49,15 +48,15 @@ namespace ToTraveler.Controllers
         }
 
         [HttpGet("{id}")]
+        [SwaggerResponse(200, "Successfully retrieved the review.", typeof(Review))]
+        [SwaggerResponse(404, "Review not found.")]
         public async Task<IActionResult> Get(int id)
         {
             var userId = _httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub);
 
-            // If Admin all reviews are possible to get
             if (_httpContext.User.IsInRole(UserRoles.Admin))
                 return Ok(await _context.Reviews.FindAsync(id));
 
-            // If Guest only not private Reviews ara gettable, User all owned Reviews are gettable
             var review = await _context.Reviews
                 .Where(r => r.IsPrivate == false || r.UserId == userId)
                 .FirstOrDefaultAsync(r => r.ID == id);
@@ -70,22 +69,21 @@ namespace ToTraveler.Controllers
 
         [HttpPost]
         [Authorize(Roles = UserRoles.User)]
+        [SwaggerResponse(201, "Review created successfully.", typeof(Review))]
+        [SwaggerResponse(400, "Bad request. Invalid data.")]
+        [SwaggerResponse(404, "Location not found.")]
+        [SwaggerResponse(401, "Unauthorized")]
         public async Task<IActionResult> Post([FromBody] ReviewDTO dto)
         {
             if (dto == null)
-            {
                 return BadRequest();
-            }
 
             var userId = _httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub);
             if (userId == null)
                 return Unauthorized();
 
-            //Checking if such Location exists
             if (!await _context.Locations.AnyAsync(l => l.ID == dto.LocationID))
-            {
                 return BadRequest("Such Location does not exist");
-            }
 
             var review = new Review(dto.Rating, dto.Text, dto.IsPrivate, userId, dto.LocationID);
 
@@ -97,19 +95,23 @@ namespace ToTraveler.Controllers
 
         [HttpPut("{id}")]
         [Authorize]
+        [SwaggerResponse(200, "Review updated successfully.", typeof(Review))]
+        [SwaggerResponse(400, "Bad request. Invalid data.")]
+        [SwaggerResponse(404, "Review not found.")]
+        [SwaggerResponse(403, "Forbidden. You do not have permission to modify this review.")]
+        [SwaggerResponse(401, "Unauthorized")]
         public async Task<IActionResult> Put(int id, [FromBody] ReviewDTO_Put dto)
         {
             if (dto == null)
                 return BadRequest();
 
             var review = await _context.Reviews
-                .Include(r=>r.User)
+                .Include(r => r.User)
                 .FirstOrDefaultAsync(u => u.ID == id);
 
             if (review == null)
                 return NotFound();
 
-            //Authorization
             var userId = _httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub);
             if (!_httpContext.User.IsInRole(UserRoles.Admin) && userId != review.UserId)
                 return Forbid();
@@ -124,6 +126,10 @@ namespace ToTraveler.Controllers
 
         [HttpDelete("{id}")]
         [Authorize]
+        [SwaggerResponse(200, "Review deleted successfully.", typeof(Review))]
+        [SwaggerResponse(404, "Review not found.")]
+        [SwaggerResponse(403, "Forbidden. You do not have permission to delete this review.")]
+        [SwaggerResponse(401, "Unauthorized")]
         public async Task<IActionResult> Delete(int id)
         {
             var review = await _context.Reviews.FirstOrDefaultAsync(u => u.ID == id);
@@ -131,7 +137,6 @@ namespace ToTraveler.Controllers
             if (review == null)
                 return NotFound();
 
-            //Authorization
             var userId = _httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub);
             if (!_httpContext.User.IsInRole(UserRoles.Admin) && userId != review.UserId)
                 return Forbid();

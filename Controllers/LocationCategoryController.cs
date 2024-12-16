@@ -6,8 +6,7 @@ using Microsoft.JSInterop.Infrastructure;
 using ToTraveler.Auth.Model;
 using ToTraveler.DTOs;
 using ToTraveler.Models;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+using Swashbuckle.AspNetCore.Annotations; // Add this for Swagger annotations
 
 namespace ToTraveler.Controllers
 {
@@ -23,15 +22,12 @@ namespace ToTraveler.Controllers
         }
 
         [HttpGet]
+        [SwaggerResponse(200, "Successfully retrieved list of location categories.", typeof(List<LocationCategory>))]
+        [SwaggerResponse(404, "No location categories found.")]
         public async Task<IActionResult> Get()
         {
             var LocationCategories = await _context.LocationCategories
                 .ToListAsync();
-
-            foreach (var category in LocationCategories)
-            {
-                Console.WriteLine(category.ID);
-            }
 
             if (LocationCategories == null || LocationCategories.Count <= 0)
                 return NotFound();
@@ -40,6 +36,8 @@ namespace ToTraveler.Controllers
         }
 
         [HttpGet("{id}")]
+        [SwaggerResponse(200, "Successfully retrieved location category.", typeof(LocationCategory))]
+        [SwaggerResponse(404, "Location category not found.")]
         public async Task<IActionResult> Get(int id)
         {
             var location_category = await _context.LocationCategories
@@ -53,9 +51,13 @@ namespace ToTraveler.Controllers
 
         [HttpPost]
         [Authorize(Roles = UserRoles.Admin)]
+        [SwaggerResponse(201, "Location category created successfully.", typeof(LocationCategory))]
+        [SwaggerResponse(400, "Bad request. Invalid data.")]
+        [SwaggerResponse(409, "Location category with the given name already exists.")]
+        [SwaggerResponse(401, "Unauthorized")]
         public async Task<IActionResult> Post([FromBody] string name)
         {
-            //Validation
+            // Validation
             if (name.IsNullOrEmpty())
                 return BadRequest();
 
@@ -71,13 +73,17 @@ namespace ToTraveler.Controllers
 
         [HttpPut("{id}")]
         [Authorize(Roles = UserRoles.Admin)]
+        [SwaggerResponse(200, "Location category updated successfully.", typeof(LocationCategory))]
+        [SwaggerResponse(400, "Bad request. Invalid data.")]
+        [SwaggerResponse(404, "Location category not found.")]
+        [SwaggerResponse(409, "Location category with the given name already exists.")]
+        [SwaggerResponse(401, "Unauthorized")]
         public async Task<IActionResult> Put(int id, [FromBody] string name)
         {
-            //Validation
+            // Validation
             if (name.IsNullOrEmpty())
                 return BadRequest();
 
-            //Checking if request Location_List exists
             var location_category = await _context.LocationCategories.FirstOrDefaultAsync(u => u.ID == id);
             if (location_category == null)
                 return NotFound("Location_List does not exist");
@@ -85,7 +91,7 @@ namespace ToTraveler.Controllers
             if (await _context.LocationCategories.FirstOrDefaultAsync(lc => lc.Name == name) is not null)
                 return Conflict("Location Category with such name already exists");
 
-            //Updating attributes
+            // Updating attributes
             location_category.Name = name;
             await _context.SaveChangesAsync();
 
@@ -94,6 +100,9 @@ namespace ToTraveler.Controllers
 
         [HttpDelete("{id}")]
         [Authorize(Roles = UserRoles.Admin)]
+        [SwaggerResponse(200, "Location category deleted successfully.", typeof(LocationCategory))]
+        [SwaggerResponse(404, "Location category not found.")]
+        [SwaggerResponse(401, "Unauthorized")]
         public async Task<IActionResult> Delete(int id)
         {
             var LocationCategories = await _context.LocationCategories.FirstOrDefaultAsync(u => u.ID == id);
@@ -101,7 +110,7 @@ namespace ToTraveler.Controllers
             if (LocationCategories == null)
                 return NotFound();
 
-            //Removing the Location_List
+            // Removing the Location_List
             _context.LocationCategories.Remove(LocationCategories);
             await _context.SaveChangesAsync();
 

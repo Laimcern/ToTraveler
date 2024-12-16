@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.JsonWebTokens;
+using Swashbuckle.AspNetCore.Annotations;
+using Swashbuckle.AspNetCore.Filters;
 using System.Security.Claims;
 using ToTraveler.Auth.Model;
 using ToTraveler.DTOs;
@@ -14,6 +16,9 @@ namespace ToTraveler.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [SwaggerTag("Endpoints for managing location data")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public class LocationController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -26,6 +31,14 @@ namespace ToTraveler.Controllers
         }
 
         [HttpGet]
+        [SwaggerOperation(
+            Summary = "Get all locations",
+            Description = "Retrieves all locations. Admins see all data, regular users see only public reviews and their own private reviews"
+        )]
+        [ProducesResponseType(typeof(List<Location>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [SwaggerResponseExample(StatusCodes.Status404NotFound, typeof(NotFoundResponseExample))]
+        [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExample))]
         public async Task<IActionResult> Get()
         {
             var userId = _httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub);
@@ -58,6 +71,14 @@ namespace ToTraveler.Controllers
         }
 
         [HttpGet("{id}")]
+        [SwaggerOperation(
+           Summary = "Get location by ID",
+           Description = "Retrieves a specific location by ID. Admins see all data, regular users see only public reviews and their own private reviews"
+       )]
+        [ProducesResponseType(typeof(Location), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [SwaggerResponseExample(StatusCodes.Status404NotFound, typeof(NotFoundResponseExample))]
+        [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExample))]
         public async Task<IActionResult> Get(int id)
         {
             var userId = _httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub);
@@ -88,6 +109,14 @@ namespace ToTraveler.Controllers
         }
 
         [HttpGet("{location_id}/reviews")]
+        [SwaggerOperation(
+            Summary = "Get location reviews",
+            Description = "Retrieves all reviews for a specific location. Admins see all reviews, regular users see only public reviews and their own private reviews"
+        )]
+        [ProducesResponseType(typeof(List<Review>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [SwaggerResponseExample(StatusCodes.Status404NotFound, typeof(NotFoundResponseExample))]
+        [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExample))]
         public async Task<IActionResult> GetLocationReviews(int location_id)
         {
             var userId = _httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Sub);
@@ -122,6 +151,22 @@ namespace ToTraveler.Controllers
 
         [HttpPost]
         [Authorize(Roles = UserRoles.User)]
+        [SwaggerOperation(
+            Summary = "Create new location",
+            Description = "Creates a new location. Requires User role."
+        )]
+        [ProducesResponseType(typeof(Location), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [SwaggerResponseExample(StatusCodes.Status200OK, typeof(LocationResponseExample))]
+        [SwaggerResponseExample(StatusCodes.Status401Unauthorized, typeof(UnauthorizedResponseExample))]
+        [SwaggerResponseExample(StatusCodes.Status400BadRequest, typeof(BadRequestResponseExample))]
+        [SwaggerResponseExample(StatusCodes.Status404NotFound, typeof(NotFoundResponseExample))]
+        [SwaggerResponseExample(StatusCodes.Status403Forbidden, typeof(ForbiddenResponseExample))]
+        [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExample))]
         public async Task<IActionResult> Post([FromBody] LocationDTO dto)
         {
             var validation = await IsValid(dto);
@@ -146,6 +191,22 @@ namespace ToTraveler.Controllers
 
         [HttpPut("{id}")]
         [Authorize]
+        [SwaggerOperation(
+             Summary = "Update location",
+             Description = "Updates an existing location. Users can only update their own locations, admins can update any location."
+         )]
+        [ProducesResponseType(typeof(Location), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)] 
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [SwaggerResponseExample(StatusCodes.Status200OK, typeof(LocationResponseExample))] 
+        [SwaggerResponseExample(StatusCodes.Status401Unauthorized, typeof(UnauthorizedResponseExample))]
+        [SwaggerResponseExample(StatusCodes.Status400BadRequest, typeof(BadRequestResponseExample))] 
+        [SwaggerResponseExample(StatusCodes.Status404NotFound, typeof(NotFoundResponseExample))]
+        [SwaggerResponseExample(StatusCodes.Status403Forbidden, typeof(ForbiddenResponseExample))] 
+        [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExample))] 
         public async Task<IActionResult> Put(int id, [FromBody] LocationDTO dto)
         {
             var validation = await IsValid(dto);
@@ -174,6 +235,19 @@ namespace ToTraveler.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize]
+        [SwaggerOperation(
+    Summary = "Delete location",
+    Description = "Deletes a location and all its associated reviews. Users can only delete their own locations, admins can delete any location."
+)]
+        [ProducesResponseType(typeof(Location), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        [SwaggerResponseExample(StatusCodes.Status200OK, typeof(LocationResponseExample))]
+        [SwaggerResponseExample(StatusCodes.Status404NotFound, typeof(NotFoundResponseExample))]
+        [SwaggerResponseExample(StatusCodes.Status403Forbidden, typeof(ForbiddenResponseExample))]
+        [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExample))]
         public async Task<IActionResult> Delete(int id)
         {
             var location = await _context.Locations.FirstOrDefaultAsync(u => u.ID == id);
@@ -224,5 +298,108 @@ namespace ToTraveler.Controllers
             return Ok();
         }
     }
+    public class ForbiddenResponseExample : IExamplesProvider<ProblemDetails>
+    {
+        public ProblemDetails GetExamples()
+        {
+            return new ProblemDetails
+            {
+                Title = "Forbidden",
+                Status = 403,
+            };
+        }
+    }
+    public class InternalServerErrorResponseExample : IExamplesProvider<ProblemDetails>
+    {
+        public ProblemDetails GetExamples()
+        {
+            return new ProblemDetails
+            {
+                Title = "Internal server error",
+                Status = 500,
+            };
+        }
+    }
+    public class UnauthorizedResponseExample : IExamplesProvider<ProblemDetails>
+    {
+        public ProblemDetails GetExamples()
+        {
+            return new ProblemDetails
+            {
+                Title = "Unauthorized",
+                Status = 401,
+            };
+        }
+    }
 
+    public class NotFoundResponseExample : IExamplesProvider<ProblemDetails>
+    {
+        public ProblemDetails GetExamples()
+        {
+            return new ProblemDetails
+            {
+                Title = "Location Not Found",
+                Status = 404,
+            };
+        }
+    }
+
+    public class BadRequestResponseExample : IExamplesProvider<ProblemDetails>
+    {
+        public ProblemDetails GetExamples()
+        {
+            return new ProblemDetails
+            {
+                Title = "Bad request",
+                Status = 400,
+            };
+        }
+    }
+
+    public class LocationDtoExample : IExamplesProvider<LocationDTO>
+    {
+        public LocationDTO GetExamples()
+        {
+            return new LocationDTO(
+                Title: "Eiffel Tower",
+                Description: "Famous landmark in Paris, France",
+                Latitude: 48.858372,
+                Longitude: 2.294481,
+                CategoryID: 1,
+                Address: "Champ de Mars, 5 Avenue Anatole France, 75007 Paris, France"
+            );
+        }
+    }
+
+    public class LocationResponseExample : IExamplesProvider<Location>
+    {
+        public Location GetExamples()
+        {
+            return new Location(
+                title: "Eiffel Tower",
+                description: "Famous landmark in Paris, France",
+                latitude: 48.858372,
+                longitude: 2.294481,
+                categoryID: 1,
+                address: "Champ de Mars, 5 Avenue Anatole France, 75007 Paris, France",
+                userId: "user123"
+            )
+            {
+                ID = 1,
+                Category = new LocationCategory("Landmarks"),
+                Reviews = new List<Review>
+            {
+                new Review
+                {
+                    ID = 1,
+                    Rating = 5,
+                    IsPrivate = false,
+                    UserId = "user456",
+                    User = new User { UserName = "john.doe" }
+                }
+            }
+            };
+        }
+    }
 }
+
